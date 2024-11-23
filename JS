@@ -1,0 +1,57 @@
+const portNumbers = [20, 21, 22, 23, 25, 53, 67, 68, 80, 110, 143, 161, 162, 443, 3306, 5432, 6379, 8080, 8443, 9200];
+
+const bingoBoard = document.getElementById('bingoBoard');
+const calledNumberDisplay = document.getElementById('numberDisplay');
+const winMessage = document.getElementById('winMessage');
+const callButton = document.getElementById('callNumber');
+let selectedNumbers = new Set();
+
+// Generate Bingo board
+portNumbers.forEach(port => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.textContent = port;
+    cell.addEventListener('click', () => selectNumber(port, cell));
+    bingoBoard.appendChild(cell);
+});
+
+// Handle number selection
+function selectNumber(port, cell) {
+    if (selectedNumbers.has(port)) {
+        selectedNumbers.delete(port);
+        cell.classList.remove('called');
+    } else {
+        selectedNumbers.add(port);
+        cell.classList.add('called');
+    }
+    checkWin();
+}
+
+// Handle called number
+function callRandomNumber() {
+    const randomIndex = Math.floor(Math.random() * portNumbers.length);
+    const numberCalled = portNumbers[randomIndex];
+    calledNumberDisplay.textContent = numberCalled;
+
+    const cell = [...bingoBoard.children].find(c => c.textContent == numberCalled);
+    if (cell) {
+        cell.classList.add('called');
+        selectedNumbers.add(numberCalled);
+    }
+    checkWin();
+}
+
+// Check for a win condition
+function checkWin() {
+    const winningCombinations = [[53, 67, 68, 80, 110]]; // Example for a future win condition. Customize as needed.
+
+    let win = winningCombinations.some(combination =>
+        combination.every(num => selectedNumbers.has(num))
+    );
+
+    if (win) {
+        winMessage.classList.remove('hidden');
+    }
+}
+
+callButton.addEventListener('click', callRandomNumber);
